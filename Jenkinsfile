@@ -13,7 +13,7 @@ pipeline {
             }
         }
 
-        stage('SonarQube Analysis') {
+        
         //     environment {
         //         SONAR_TOKEN = credentials('sonarcloudinfo')
         //     }
@@ -28,14 +28,14 @@ pipeline {
         //                 -Dsonar.login=$SONAR_TOKEN
         //             """
         //         }
-        stage('CompileandRunSonarAnalysis'){
+        stage('CompileandRunSonarAnalysis') {
             steps{
                 withCredentials([string(credentialsId: 'sonarcloudinfo', variable: 'sonarcloudinfo')]) {
                     sh 'mvn clean verify sonar:sonar -Dsonar.login=$caleb-token -Dsonar.organization=caleb-org -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=caleb-org' 
                 }
             }
         }
-        }
+        
 
         stage('Build Java Application') {
             steps {
