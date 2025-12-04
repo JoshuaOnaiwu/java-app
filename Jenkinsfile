@@ -50,6 +50,7 @@ pipeline {
             steps {
                 sh """
                     snyk auth $SNYK_TOKEN
+                    mvn dependency:tree -DoutputType=dot
                     snyk test --all-projects
                 """
             }
