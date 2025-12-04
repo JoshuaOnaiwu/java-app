@@ -54,7 +54,7 @@ pipeline {
             steps {
                 dir("${WORKSPACE}"){
                 sh """
-                    mvn dependency:tree -DoutputType=dot
+                    mvnw dependency:tree -DoutputType=dot
                     snyk test --all-projects --severity-threshold=medium
                 """
                 }
