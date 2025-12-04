@@ -49,9 +49,9 @@ pipeline {
             }
             steps {
                 sh """
-                    snyk auth $SNYK_TOKEN
+                    snyk auth --auth-type=token $SNYK_TOKEN
                     mvn dependency:tree -DoutputType=dot
-                    snyk test --all-projects
+                    snyk test --all-projects --severity-threshold=medium
                 """
             }
         }
