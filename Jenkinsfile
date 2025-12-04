@@ -44,6 +44,10 @@ pipeline {
         }
 
         stage('Snyk Scan') {
+            tools {
+                jdk 'jdk17'
+                maven 'maven3'
+                }
             environment{
                 SNYK_TOKEN = credentials('SNYK_TOKEN')
             }
