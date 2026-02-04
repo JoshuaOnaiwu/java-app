@@ -1,49 +1,54 @@
 pipeline {
     agent any
 
+    tools {
+        maven 'maven3'
+        jdk 'jdk17'
+    }
+
     stages {
-        stage('Checkout Source') {
+        stage('Checkout Code') {
             steps {
-                echo 'Checking out code...'
                 checkout scm
             }
         }
-
-        stage('Debug Workspace') {
-    steps {
-        sh 'pwd'
-        sh 'ls -R'
-        }
-    }
-
+                
         stage('Build Java Application') {
             steps {
-                echo 'Building Java app...'
-                sh 'javac src/Main.java' // ← swap with your actual build command
+                sh 'mvn clean package -DskipTests'
             }
-        }
+    }
 
         stage('Build Docker Image') {
             steps {
-                echo 'Building Docker image...'
-                sh 'docker build -t your-dockerhub-username/java-app:latest .' // update registry/tag
+                sh 'docker build -t amcal/my-java-app:v1 .'
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                echo 'Pushing Docker image...'
-                sh 'docker push your-dockerhub-username/java-app:latest' // update registry/tag
+                withcredentials([usernamePassword(
+                    credentialsId: "DOCKER_LOGIN",
+                    usernameVariable: 'USERNAME',
+                    passwordvariable: 'PASSWORD'
+                )]) {
+                    sh '''
+                        echo $PASSWORD | docker login -u $USERNAME --password-stdin
+                        docker push amcal/my-java-app:v1
+                        docker logout
+                    '''
+                }
             }
         }
     }
 
     post {
         success {
-            echo 'Pipeline completed successfully!'
+            echo '✅Pipeline completed successfully'
         }
         failure {
-            echo 'Pipeline failed. Check logs.'
+            echo '❌Build failed. Check the logs for details.'
         }
     }
+
 }
