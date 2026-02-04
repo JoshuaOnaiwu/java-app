@@ -9,6 +9,13 @@ pipeline {
             }
         }
 
+        stage('Debug Workspace') {
+    steps {
+        sh 'pwd'
+        sh 'ls -R'
+        }
+    }
+
         stage('Build Java Application') {
             steps {
                 echo 'Building Java app...'
