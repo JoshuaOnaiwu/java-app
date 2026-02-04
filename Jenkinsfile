@@ -12,7 +12,7 @@ pipeline {
         stage('Build Java Application') {
             steps {
                 echo 'Building Java app...'
-                sh 'javac Main.java' // ← swap with your actual build command
+                sh 'javac src/Main.java' // ← swap with your actual build command
             }
         }
 
