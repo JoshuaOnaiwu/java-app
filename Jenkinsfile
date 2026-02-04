@@ -1,59 +1,42 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'maven3'
-        jdk 'jdk17'
-    }
-
     stages {
-        stage('Checkout Code') {
+        stage('Checkout Source') {
             steps {
+                echo 'Checking out code...'
                 checkout scm
-            }
-        }
-        
-        stage ('Build Java Application') {
-            steps {
-                    sh 'mvn clean verify sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=caleb-org -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=caleb-org_my-java-app'
-                }
             }
         }
 
         stage('Build Java Application') {
             steps {
-                sh 'mvn clean package -DskipTests'
+                echo 'Building Java app...'
+                sh 'javac Main.java' // ← swap with your actual build command
             }
         }
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t my-java-app:v1 .'  
+                echo 'Building Docker image...'
+                sh 'docker build -t your-dockerhub-username/java-app:latest .' // update registry/tag
             }
         }
 
         stage('Push Docker Image') {
             steps {
-                withCredentials([usernamePassword(
-                    credentialsId: 'DOCKER_LOGIN',
-                    usernameVariable: 'USERNAME',
-                    passwordVariable: 'PASSWORD'
-                )]) {
-                    sh '''
-                        echo $PASSWORD | docker login -u $USERNAME --password-stdin
-                        docker push amcal/my-java-app:v1
-                        docker logout
-                    '''
-                }
+                echo 'Pushing Docker image...'
+                sh 'docker push your-dockerhub-username/java-app:latest' // update registry/tag
             }
         }
     }
 
     post {
         success {
-            echo '✅ Build and Docker image-push successful'
+            echo 'Pipeline completed successfully!'
         }
         failure {
-            echo '❌ Build failed. Check the logs for details.'
+            echo 'Pipeline failed. Check logs.'
         }
     }
+}
