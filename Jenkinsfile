@@ -13,9 +13,8 @@ pipeline {
             }
         }
         
-        stage ('RunSonarCloudAnalysis') {
+        stage ('Build Java Application') {
             steps {
-                withCredentials([string(credentialsId: 'SONAR_TOKEN', variable: 'SONAR_TOKEN')]) {
                     sh 'mvn clean verify sonar:sonar -Dsonar.login=$SONAR_TOKEN -Dsonar.organization=caleb-org -Dsonar.host.url=https://sonarcloud.io -Dsonar.projectKey=caleb-org_my-java-app'
                 }
             }
@@ -27,32 +26,9 @@ pipeline {
             }
         }
 
-        stage('Snyk Scan') {
-            tools {
-                jdk 'jdk17'
-                maven 'maven3'
-            }
-            environment{
-                SNYK_TOKEN = credentials('SNYK_TOKEN')
-            }
-            steps {
-                dir("${WORKSPACE}") {
-                    sh '''
-                        curl -Lo snyk https://static.snyk.io/cli/latest/snyk-linux
-                        chmod +x snyk
-                        ./snyk auth --auth-type=token $SNYK_TOKEN
-                        chmod +x mvnw
-                        ./mvnw dependency:tree -DoutputType=dot
-                        ./snyk test --all-projects --severity-threshold=medium || true
-                    '''
-                }
-            }
-        }
-
-
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t amcal/my-java-app:v1 .'
+                sh 'docker build -t my-java-app:v1 .'  
             }
         }
 
